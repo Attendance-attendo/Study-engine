@@ -1,0 +1,15 @@
+{
+  "name": "Study Engine Pro",
+  "short_name": "StudyPro",
+  "start_url": "study.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#facc15",
+  "icons": [
+    {
+      "src": "Logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
