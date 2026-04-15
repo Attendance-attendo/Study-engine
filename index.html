@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Study Engine Pro</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="image-removebg-preview.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --red: #dc2626; --gold: #facc15; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        .container { width: 100%; max-width: 600px; }
+        .brand-box h1 { margin: 0; font-size: 2.5rem; font-weight: 900; letter-spacing: -2px; color: var(--gold); text-align: center; line-height: 1; }
+        
+        .card { background: var(--card); border-radius: 24px; width: 100%; padding: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
+        
+        textarea { width: 100%; height: 140px; border-radius: 12px; background: #0f172a; color: white; border: 1px solid #334155; padding: 12px; font-family: inherit; font-size: 14px; resize: none; }
+        input[type="text"] { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; background: #0f172a; color: white; border: 1px solid #334155; font-weight: 600; }
+        
+        .control-panel { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-top: 15px; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; font-weight: 700; }
+        input[type="range"] { accent-color: var(--gold); cursor: pointer; }
+        
+        .check-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .check-btn { font-size: 10px; background: #0f172a; border: 1px solid #334155; padding: 8px; border-radius: 8px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        
+        button#main-btn { background: var(--gold); color: black; border: none; padding: 15px; border-radius: 50px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: 900; font-size: 14px; text-transform: uppercase; }
+
+        .output-section { display: none; width: 100%; margin-top: 20px; }
+        h2.sec-title { color: var(--gold); font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; text-align: left; border-left: 4px solid var(--gold); padding-left: 10px; }
+        
+        .fc-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .flashcard { perspective: 1000px; height: 160px; cursor: pointer; }
+        .fc-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+        .fc-front, .fc-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; padding: 20px; border-radius: 18px; text-align: center; font-weight: 700; font-size: 14px; }
+        .fc-front { background: var(--card); color: var(--gold); border: 2px solid var(--gold); }
+        .fc-back { background: var(--gold); color: black; transform: rotateY(180deg); padding: 20px; }
+
+        .q-box { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; border-left: 3px solid #334155; }
+        #toast { position: fixed; top: 20px; background: var(--gold); color: black; padding: 10px 20px; border-radius: 50px; font-weight: 800; visibility: hidden; z-index: 100; }
+        #toast.show { visibility: visible; }
+    </style>
+</head>
+<body>
+
+    <div id="toast">Saved Successfully</div>
+
+    <div class="container">
+        <div class="brand-box">
+            <h1>STUDY ENGINE</h1>
+            <p style="color:var(--gold); font-size:10px; margin-top:5px; text-align:center; font-weight:700;">PRO EDITION</p>
+        </div>
+
+        <div class="card">
+            <input type="text" id="topic" placeholder="Chapter Topic...">
+            <textarea id="inputText" placeholder="Paste chapter content here..."></textarea>
+
+            <div class="control-panel">
+                <div class="setting-item">
+                    <span>Number of Flashcards:</span>
+                    <span id="rangeVal" style="color:var(--gold)">6</span>
+                </div>
+                <input type="range" id="qCount" min="1" max="12" value="6" oninput="rangeVal.innerText = this.value">
+                
+                <div class="check-grid">
+                    <label class="check-btn"><input type="checkbox" id="cShort" checked> Short Ans</label>
+                    <label class="check-btn"><input type="checkbox" id="cLong" checked> Long Ans</label>
+                    <label class="check-btn"><input type="checkbox" id="cApp" checked> Application</label>
+                </div>
+            </div>
+
+            <button id="main-btn" onclick="generateKit()">Generate & Save</button>
+        </div>
+
+        <div id="output" class="output-section">
+            <div class="card">
+                <h2 class="sec-title">Summary</h2>
+                <ul id="sumList" style="padding-left: 20px; font-size: 14px; line-height: 1.8;"></ul>
+            </div>
+            <h2 class="sec-title">Flashcards</h2>
+            <div id="fcGrid" class="fc-grid"></div>
+            <div class="card" style="margin-top:20px;">
+                <h2 class="sec-title">Questions</h2>
+                <div id="paperList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = "https://script.google.com/macros/s/AKfycbwlOj-32vH2cIO6gMBolTmOGdRJEzRlxAc5T1djf6mioZLihWG0a2ZBJwDfnwg53F8Mng/exec";
+
+        function showToast(m) {
+            const t = document.getElementById("toast");
+            t.innerText = m; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        async function generateKit() {
+            const text = document.getElementById('inputText').value;
+            const topic = document.getElementById('topic').value;
+            const count = document.getElementById('qCount').value;
+
+            if(!text || !topic) return alert("Please fill Topic and Content!");
+
+            document.getElementById('output').style.display = 'block';
+            
+            const sentences = text.split(/[.!?]/).filter(s => s.trim().length > 20);
+            document.getElementById('sumList').innerHTML = sentences.slice(0, 4).map(s => `<li>${s.trim()}.</li>`).join('');
+
+            let fcHTML = '';
+            for(let i = 0; i < count; i++) {
+                let ans = sentences[i] || "Review chapter for details.";
+                fcHTML += `<div class="flashcard" onclick="this.classList.toggle('flipped')"><div class="fc-inner"><div class="fc-front">CONCEPT ${i+1}</div><div class="fc-back">${ans.trim()}.</div></div></div>`;
+            }
+            document.getElementById('fcGrid').innerHTML = fcHTML;
+
+            let pHTML = '';
+            if(document.getElementById('cShort').checked) pHTML += `<div class="q-box"><b>Short Answer:</b> Define ${topic} based on the text.</div>`;
+            if(document.getElementById('cLong').checked) pHTML += `<div class="q-box"><b>Long Answer:</b> Explain the importance of ${topic} in detail.</div>`;
+            if(document.getElementById('cApp').checked) pHTML += `<div class="q-box"><b>Application:</b> How would you use ${topic} in a real-life scenario?</div>`;
+            
+            document.getElementById('paperList').innerHTML = pHTML;
+
+            fetch(API, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify({
+                    action: "saveStudyKit",
+                    topic: topic,
+                    summary: document.getElementById('sumList').innerText,
+                    questions: pHTML
+                })
+            });
+            showToast("Saved to Google Sheets!");
+            window.scrollTo({ top: document.getElementById('output').offsetTop - 20, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
