@@ -3,28 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Mega-Study Engine</title>
+    <title>Universal AI Study Engine</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --red: #dc2626; --gold: #facc15; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .container { width: 100%; max-width: 750px; }
         .card { background: var(--card); border-radius: 24px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        input, textarea { width: 100%; padding: 15px; margin-top: 10px; border-radius: 12px; background: #0f172a; color: white; border: 1px solid #334155; }
+        input[type="text"] { width: 100%; padding: 15px; margin-top: 10px; border-radius: 12px; background: #0f172a; color: white; border: 1px solid #334155; }
         
-        .upload-area { border: 3px dashed var(--gold); padding: 30px; text-align: center; border-radius: 20px; cursor: pointer; background: rgba(250, 204, 21, 0.05); transition: 0.3s; }
-        .upload-area:hover { background: rgba(250, 204, 21, 0.1); border-color: white; }
+        .upload-area { border: 3px dashed var(--gold); padding: 30px; text-align: center; border-radius: 20px; cursor: pointer; background: rgba(250, 204, 21, 0.05); transition: 0.3s; margin-top: 20px; }
+        .upload-area:hover { background: rgba(250, 204, 21, 0.1); }
         
-        button { background: var(--gold); color: black; border: none; padding: 18px; border-radius: 50px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: 900; text-transform: uppercase; font-size: 14px; box-shadow: 0 5px 15px rgba(250, 204, 21, 0.3); }
-        button:disabled { background: #334155; color: #64748b; cursor: not-allowed; box-shadow: none; }
+        button { background: var(--gold); color: black; border: none; padding: 18px; border-radius: 50px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: 900; text-transform: uppercase; font-size: 14px; }
+        button:disabled { background: #334155; cursor: not-allowed; }
 
-        .loader { display: none; text-align: center; margin-top: 20px; }
-        .spinner { border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: var(--gold); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
+        .loader { display: none; text-align: center; margin-top: 20px; color: var(--gold); font-weight: 800; }
         .output-section { display: none; width: 100%; margin-top: 30px; }
-        .paper-content { background: white; color: #1a1a1a; padding: 40px; border-radius: 12px; white-space: pre-wrap; line-height: 1.8; font-size: 15px; border: 1px solid #e2e8f0; }
-        .paper-content b { color: black; font-weight: 900; }
+        .paper-content { background: white; color: #1a1a1a; padding: 40px; border-radius: 12px; white-space: pre-wrap; line-height: 1.8; font-size: 15px; }
         
         @media print {
             .container, .card, button, .upload-area, h2 { display: none !important; }
@@ -37,121 +33,101 @@
 
     <div class="container">
         <header style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color:var(--gold); margin:0; font-size: 3rem; font-weight: 900; letter-spacing: -2px;">MEGA BOOK AI</h1>
-            <p style="font-weight: 700; opacity: 0.6; font-size: 12px;">WHOLE BOOK • MULTIPLE CHAPTERS • SYLLABUS</p>
+            <h1 style="color:var(--gold); margin:0; font-size: 2.5rem; font-weight: 900; letter-spacing: -2px;">UNIVERSAL AI ENGINE</h1>
+            <p style="font-weight: 700; opacity: 0.6; font-size: 10px;">TEXT • PHOTO • WORD • PDF • TXT</p>
         </header>
 
         <div class="card">
-            <label style="font-size: 12px; font-weight: 800; color: var(--gold);">EXAM / SYLLABUS NAME</label>
-            <input type="text" id="topic" placeholder="e.g., Grade 8 Science - Units 1 to 6">
+            <label style="font-size: 12px; font-weight: 800; color: var(--gold);">SYLLABUS / CHAPTER NAME</label>
+            <input type="text" id="topic" placeholder="e.g., Science Final Exam">
             
-            <div style="margin-top: 20px;" class="upload-area" onclick="document.getElementById('fileInput').click()">
-                <div style="font-size: 24px; margin-bottom: 10px;">📚</div>
-                <b style="color:var(--gold)">CLICK TO ATTACH FULL BOOK (PDF)</b>
-                <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display:none" onchange="updateFileStatus()">
-                <div id="fileStat" style="font-size:11px; margin-top:10px; opacity: 0.7;">Maximum file size: 100MB</div>
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div style="font-size: 24px; margin-bottom: 10px;">📁</div>
+                <b style="color:var(--gold)">ATTACH ANY FILE OR PHOTO</b>
+                <input type="file" id="fileInput" accept="image/*, .pdf, .txt, .doc, .docx" style="display:none" onchange="updateFileStatus()">
+                <div id="fileStat" style="font-size:11px; margin-top:10px; opacity: 0.7;">Supports JPG, PNG, PDF, Word, and Text</div>
             </div>
 
-            <button id="mainBtn" onclick="processMegaBook()">GENERATE 80-MARK MASTER EXAM</button>
-            
-            <div id="loader" class="loader">
-                <div class="spinner"></div>
-                <div style="color: var(--gold); font-weight: 800;">AI IS READING THE WHOLE BOOK...</div>
-                <div style="font-size: 10px; opacity: 0.6; margin-top: 5px;">This can take 30-60 seconds for large files.</div>
-            </div>
+            <button id="mainBtn" onclick="processUniversalFile()">GENERATE MASTER KIT</button>
+            <div id="loader" class="loader">⚙️ AI IS READING YOUR FILE... PLEASE WAIT...</div>
         </div>
 
         <div id="output" class="output-section">
-            <h2 style="color:var(--gold); border-left: 5px solid var(--gold); padding-left: 15px; text-transform: uppercase; font-size: 18px;">Comprehensive Summary</h2>
-            <div class="card" id="sumOut" style="line-height: 1.8; font-size: 15px;"></div>
+            <h2 style="color:var(--gold); border-left: 5px solid var(--gold); padding-left: 15px;">Full Summary</h2>
+            <div class="card" id="sumOut"></div>
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 40px;">
-                <h2 style="color:var(--gold); border-left: 5px solid var(--gold); padding-left: 15px; text-transform: uppercase; font-size: 18px;">Master Question Paper</h2>
-                <button onclick="window.print()" style="width: auto; padding: 10px 20px; font-size: 12px; margin: 0;">🖨️ PRINT / SAVE PDF</button>
+                <h2 style="color:var(--gold); border-left: 5px solid var(--gold); padding-left: 15px;">80-Mark Question Paper</h2>
+                <button onclick="window.print()" style="width: auto; padding: 10px 20px; font-size: 11px;">🖨️ PRINT PDF</button>
             </div>
             <div class="paper-content" id="paperOut"></div>
         </div>
     </div>
 
     <script>
-        // REPLACE THIS WITH YOUR KEY
         const AI_KEY = "AIzaSyAVWEg7hmRXKSasfoKXiMsiLtn8J163X5A";
 
         function updateFileStatus() {
             const file = document.getElementById('fileInput').files[0];
-            if(file) {
-                document.getElementById('fileStat').innerText = "✅ READY: " + file.name + " (" + (file.size/1024/1024).toFixed(2) + " MB)";
-                document.getElementById('fileStat').style.color = "#facc15";
-            }
+            if(file) document.getElementById('fileStat').innerText = "✅ ATTACHED: " + file.name;
         }
 
-        async function processMegaBook() {
+        async function processUniversalFile() {
             const file = document.getElementById('fileInput').files[0];
             const topic = document.getElementById('topic').value;
             
-            if(!file || !topic) return alert("Please enter the Syllabus Name and attach the PDF!");
+            if(!file || !topic) return alert("Please enter the name and attach a file!");
 
-            // Show Loader, Hide Button
             document.getElementById('loader').style.display = "block";
             document.getElementById('mainBtn').disabled = true;
-            document.getElementById('output').style.display = "none";
 
             const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                const base64Data = reader.result.split(',')[1];
-                
-                const prompt = `Act as an expert school examiner. I have provided a full book/multiple chapters for the syllabus: "${topic}".
-                
-                YOUR TASKS:
-                1. Provide a high-level summary of the most important concepts from the entire content.
-                2. Create a professional 80-mark Final Exam Paper that covers all provided chapters/units equally.
-                
-                EXAM STRUCTURE (80 Marks Total):
-                - Section A: 14 MCQs (1 mark each)
-                - Section B: 10 Short Questions (2 marks each)
-                - Section C: 10 Fill in the Blanks (1 mark each)
-                - Section D: 6 True or False (1 mark each)
-                - Section E: 4 Long Questions (5 marks each)
-                
-                Use <b>bolding</b> for Section Headers and Question Numbers.
-                Format the response ONLY as valid JSON: {"summary": "html_content", "paper": "html_content"}`;
+            
+            // Special handling for Text/Plain files
+            if (file.type === "text/plain") {
+                reader.readAsText(file);
+                reader.onload = async () => {
+                    sendToAI({ text: reader.result }, topic);
+                };
+            } else {
+                // Handling Images, PDFs, and Word docs as Binary
+                reader.readAsDataURL(file);
+                reader.onload = async () => {
+                    const base64Data = reader.result.split(',')[1];
+                    sendToAI({ 
+                        inline_data: { mime_type: file.type || "application/octet-stream", data: base64Data } 
+                    }, topic);
+                };
+            }
+        }
 
-                try {
-                    // Using a custom fetch with a longer timeout if needed (implicit in browser)
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AI_KEY}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [
-                                    { text: prompt },
-                                    { inline_data: { mime_type: file.type, data: base64Data } }
-                                ]
-                            }]
-                        })
-                    });
+        async function sendToAI(filePart, topic) {
+            const prompt = `Act as an expert teacher. Analyze this file regarding "${topic}".
+            1. Provide a comprehensive summary.
+            2. Create an 80-mark Exam Paper: 14 MCQs, 10 Short (2m), 10 Fill-ups, 6 T/F, 4 Long (5m).
+            Return ONLY as JSON: {"summary": "html_string", "paper": "html_string"}`;
 
-                    if (!response.ok) throw new Error("API Error");
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AI_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }, filePart] }]
+                    })
+                });
 
-                    const data = await response.json();
-                    const rawText = data.candidates[0].content.parts[0].text;
-                    const result = JSON.parse(rawText.replace(/```json|```/g, ""));
+                const data = await response.json();
+                const result = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g, ""));
 
-                    document.getElementById('sumOut').innerHTML = result.summary;
-                    document.getElementById('paperOut').innerHTML = result.paper;
-                    document.getElementById('output').style.display = "block";
-                    
-                    window.scrollTo({ top: document.getElementById('output').offsetTop - 20, behavior: "smooth" });
-
-                } catch (e) {
-                    console.error(e);
-                    alert("The file might be too large or the AI timed out. \n\nTips:\n1. Ensure the PDF is under 100MB.\n2. If it still fails, try splitting the book into two halves.");
-                } finally {
-                    document.getElementById('loader').style.display = "none";
-                    document.getElementById('mainBtn').disabled = false;
-                }
-            };
+                document.getElementById('sumOut').innerHTML = result.summary;
+                document.getElementById('paperOut').innerHTML = result.paper;
+                document.getElementById('output').style.display = "block";
+            } catch (e) {
+                alert("Error: AI could not process this specific file format or size.");
+            } finally {
+                document.getElementById('loader').style.display = "none";
+                document.getElementById('mainBtn').disabled = false;
+            }
         }
     </script>
 </body>
